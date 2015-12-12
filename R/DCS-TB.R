@@ -86,45 +86,22 @@ growth.ac.cond <- function(Y0 = 0.01, r = 0.1, k = 2, cond = cbind.data.frame(Y 
 
 
 # PLOTS -------------------------------------------------------------------
-disp <- function(message='Hello world!', header = TRUE, footer = TRUE){
-
-    mWidth <- max(laply(message,nchar))
-
-    if(is.character(header)){
-        hWidth <- max(laply(header,nchar))
-        mWidth <- max(hWidth,mWidth)
-    }
-
-    dmessage <- list()
-    for(m in 1:length(message)){
-       # b <- floor((mWidth-nchar(message[m]))/2)
-        e <- mWidth-nchar(message[m])
-        dmessage[[m]] <- paste0('§ ',message[m]) #,paste0(rep(' ',e),collapse=""),'\n\t')
-                                #paste0('§ ',paste0(rep(" ",mWidth),collapse=""),' §'))
-    }
-    # if(m > 1){dmessage[[m]] <- paste0(dmessage[[m]],}
-
-   # mWidth <- max(laply(dmessage, nchar))
-    banner <- paste0(rep('~', mWidth), collapse = "")
-    if(is.character(header)){
-        b <- floor((nchar(banner)-nchar(header))/2)
-        e <- ceiling((nchar(banner)-nchar(header))/2)
-            leader <- paste0('\n\t',paste0(rep('~',b),collapse=""),header,paste0(rep('~',e),collapse=""))
-        }
-    if(header == TRUE){
-            leader <- banner
-        }
-    if(header == FALSE){
-            leader <- paste0('§') #,paste0(rep(" ",nchar(banner)-2),collapse="")) #,'§')
-        }
-
-    if(footer){
-            cat(paste0('\n\t',leader,'\n\t',dmessage,'\n\t',banner,'\n'))
-        } else {
-            cat(paste0('\n\t',leader,'\n\t',dmessage))
-        }
-}
-
+#
+#
+#' gg.theme
+#'
+#' @param type      One of \code{"clean"}, or \code{"noax"}
+#' @param useArial    Use the Arial font (requires \code{.afm} font files in the \code{afmPath})
+#' @param afmPATH    Path to Arial \code{.afm} font files.
+#'
+#' @details Will generate a \code("clean") ggplot theme, or a theme without any axes (\code{"noax"}).
+#'
+#' Some scientific journals explicitly request the Arial font should be used in figures. This can be achieved by using \code{.afm} font format (see, e.g. http://www.pure-mac.com/font.html).
+#'
+#' @return A theme for \code{ggplot2}.
+#' @export
+#'
+#' @examples
 gg.theme <- function(type=c("clean","noax")[1],useArial = F, afmPATH="~/Dropbox"){
     require(ggplot2)
     if(useArial){
