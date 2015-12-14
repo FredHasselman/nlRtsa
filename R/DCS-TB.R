@@ -102,6 +102,10 @@ growth.ac.cond <- function(Y0 = 0.01, r = 0.1, k = 2, cond = cbind.data.frame(Y 
 #' @export
 #'
 #' @examples
+#' library(ggplot2)
+#' g <- ggplot(data.frame(x = rnorm(n = 100), y = rnorm(n = 100)), aes(x = x, y = y)) + geom_point()
+#' g + gg.theme()
+#' g + gg.theme("noax")
 gg.theme <- function(type=c("clean","noax")[1],useArial = F, afmPATH="~/Dropbox"){
     require(ggplot2)
     if(useArial){
@@ -130,7 +134,28 @@ gg.theme <- function(type=c("clean","noax")[1],useArial = F, afmPATH="~/Dropbox"
     )
 }
 
-plotHolder <- function(useArial = F,afmPATH="~/Dropbox"){
+#' gg.plotHolder
+#'
+#' @param useArial
+#' @param afmPATH
+#'
+#' @return A blank \code{ggplot2} object that can be used in concordance with \code{grid.arrange}.
+#' @export
+#'
+#' @examples
+#' # Create a plot with marginal distributions.
+#' library(ggplot2)
+#' library(scales)
+#'
+#' df <- data.frame(x = rnorm(n = 100), y = rnorm(n = 100), group = factor(sample(x=c(0,1), size = 100, replace = TRUE)))
+#'
+#' scatterP <- ggplot(df, aes(x = x, y =y, colour = group)) + geom_point() + gg.theme()
+#' xDense <- ggplot(df, aes(x = x, fill = group)) + geom_density(aes(y= ..count..),trim=FALSE, alpha=.5) + gg.theme("noax") + theme(legend.position = "none")
+#' yDense <- ggplot(df, aes(x = y, fill = group)) + geom_density(aes(y= ..count..),trim=FALSE, alpha=.5) + coord_flip() + gg.theme("noax") + theme(legend.position = "none")
+#'
+#' library(gridExtra)
+#' grid.arrange(xDense, gg.plotHolder(), scatterP, yDense, ncol=2, nrow=2, widths=c(4, 1.4), heights=c(1.4, 4))
+gg.plotHolder <- function(useArial = F,afmPATH="~/Dropbox"){
     require(ggplot2)
     ggplot() +
         geom_blank(aes(1,1)) +
@@ -164,6 +189,61 @@ set.Arial <- function(afmPATH="~/Dropbox"){
             return()
         } else {disp(header='useArial=TRUE',message='The directory did not contain the *.afm version of the Arial font family')}
     } else {disp(header='useArial=TRUE',message='Please provide the path to the *.afm version of the Arial font family')}
+}
+
+
+plot.loglog <- function(PSDout){
+g <- ggplot(PSDout$spec, aes(x=Frequency,y=Power), na.rm=T) +
+  scale_x_log10(breaks = log_breaks(n=abs(diff(range(round(log10(PSDout$Frequency)))+c(-1,1))),base=10),
+                labels = trans_format("log10", math_format(10^.x)),
+                limits = range(round(log10(PSDout$Frequency)))+c(-1,1)) +
+  scale_y_log10(breaks = log_breaks(n=abs(diff(range(round(log10(PSDout$Power)))+c(-1,1))),base=10),
+                labels = trans_format("log10", math_format(10^.x)),
+                limits = range(round(log10(PSDout$Power)))+c(-1,1)) +
+  geom_point() +
+  geom_abline(intercept = PSDout$slope[1], slope = PSDout$slope[2], colour = "red", size = 2) +
+  ggtitle(paste("Regression over ",PSDout$fitRange," frequencies",sep=""))+
+  xlab("Frequency (log10)")+ylab("Power (log10)")+
+  annotation_logticks() +
+  annotate("text",x=10^-2,y=10^5,label=paste("Slope = ",round(PSDout$slope[[2]]),sep="")) + gg.theme("clean")
+return(g)
+}
+
+
+# Variability Analyses --------------------------------------------------------------------------------------------------------------------------
+
+
+#' PSDslope
+#'
+#' @param y    A time series object, or a vector that can be converted to a time series object.
+#' @param fs    Sample frequency (defults to 1).
+#' @param nfft    Number of frequencies to estimate (defaults to next power of 2)
+#' @param fitRange    Vector of length 2 with range of frequencies to perform log-log fit.
+#' @param plot    Plot the log-log spectrum and slope.
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
+PSDslope <- function(y  = ts(rnorm(n = 1024), frequency = 1),
+                     fs = frequency(y),
+                     nfft = 2^(nextpow2(length(y)/2)),
+                     fitRange = c(1,round(.1*nfft)),
+                     plot = FALSE){
+  require(oce)
+  require(signal)
+  if(!is.ts(y)){ts(y, frequency = fs)}
+
+  win <- signal::hamming(n=nfft)
+
+  perioGram <- oce::pwelch(x = y, window = win, fs = frequency(y), nfft = nfft, plot = FALSE)
+  spec <- data.frame(Frequency = perioGram$freq, Power = perioGram$spec)
+  spec[1,1:2] <- NA
+  fit <- lm(log10(spec$Power[fitRange[1]:fitRange[2]])~log10(spec$Power[fitRange[1]:fitRange[2]]))
+  return(list(spec = spec,
+              slope = fit)
+         )
 }
 
 
