@@ -8,6 +8,6 @@ Authors@R: c(person("Fred", "Hasselman", email = "f.hasselman@pwo.ru.nl", role =
 Description: Companion to the course Dynamics of Complex Systems given at the Graduate School Behavioural Science (Research Master Behavioural Science) at the Radboud University Nijmegen.
 Depends: R (>= 3.2.2)
 LazyData: true
-Imports: plyr, dplyr, pracma, signal, matlab, oce, lattice, latticeExtra
-Suggests: tsseries
+Imports: plyr, dplyr, lattice, latticeExtra, grid, gridExtra, ggplot2, pracma, signal, oce, forecast, fractal
+Suggests: tsseries, matlab
 RoxygenNote: 5.0.1
