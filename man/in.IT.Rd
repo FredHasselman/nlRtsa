@@ -56,6 +56,6 @@ in.SN()
 Fred Hasselman
 }
 \seealso{
-Other initialise.packages: \code{\link{un.IT}}
+Other initialise packages: \code{\link{un.IT}}
 }
 

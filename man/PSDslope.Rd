@@ -22,4 +22,7 @@ PSDslope(y = ts(rnorm(n = 1024), frequency = 1), fs = frequency(y),
 \description{
 PSDslope
 }
+\examples{
+
+}
 

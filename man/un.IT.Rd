@@ -24,6 +24,6 @@ Unload and/or uninstall R packages.
 Fred Hasselman
 }
 \seealso{
-Other initialise.packages: \code{\link{in.IT}}
+Other initialise packages: \code{\link{in.IT}}
 }
 
