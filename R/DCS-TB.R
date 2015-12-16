@@ -352,11 +352,11 @@ hoodGraph2svg <- function(TDM,Vname,pname){
 
 # Conversion formulas for self-affinity parameter estimates (sap) to Dimension (fd) suggested in Hasselman (2013)
 # PSD slope (if signal is continuous (sampled) consider Wijnants et al. (2013) log-log fitting procedure)
-psd2fd <- function(sap){return(fd <- 3/2 + ((14/33)*tanh(sap*log(1+sqrt(2)))) )}
+psd2fd <- function(sap){return(3/2 + ((14/33)*tanh(sap*log(1+sqrt(2)))) )}
 # DFA slope (this is H in DFA)
-dfa2fd <- function(sap){return(fd <- 2-(tanh(log(3)*sap)) )}
+dfa2fd <- function(sap){return(2-(tanh(log(3)*sap)) )}
 # SDA slope (simple 1-sap, but note that for some signals different PSD slope values project to 1 SDA slope)
-sda2fd <- function(sap){return(fd <- 1-sap)}
+sda2fd <- function(sap){return(1-sap)}
 
 
 sliceTS<-function(TSmat,epochSz=1) {
