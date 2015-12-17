@@ -211,7 +211,8 @@ fd.dfa <- function(y, fs = NULL, dtrend = "poly1", normalize = FALSE, sum.order 
     lmfit2        <- lm(log(attributes(out2)$stat) ~ log(attributes(out2)$scale))
 
     if(plot){
-        old<- ifultools::splitplot(2,1,1)
+        plot.new()
+        old <- ifultools::splitplot(2,1,1)
         plot(y,ylab = "Y", main = paste0('Full    sap: ', round(coef(lmfit1)[2],digits=2), ' | H:',
                                          round(attributes(out1)$logfit[]$coefficients['x'] ,digits=2), ' | FD:',
                                          round(dfa2fd(coef(lmfit1)[2]),digits=2),'\nRange    sap: ',
@@ -227,7 +228,6 @@ fd.dfa <- function(y, fs = NULL, dtrend = "poly1", normalize = FALSE, sum.order 
         legend("topleft",c(paste0("Full (n = ",length(attributes(out1)$scale),")"), paste0("Range (n = ",length(attributes(out2)$scale),")")), lwd=c(3,3),col=c("darkred","darkblue"), cex = .8)
         par(old)
     }
-
     return(list(
         PLAW  =  cbind.data.frame(freq.norm = scale.R(attributes(out1)$scale*frequency(y)), size = attributes(out1)$scale, bulk = attributes(out1)$stat),
                                   fullRange = list(sap = coef(lmfit1)[2], H = attributes(out1)$logfit[]$coefficients['x'] , FD = dfa2fd(coef(lmfit1)[2]), fitlm1 = lmfit1),
