@@ -18,10 +18,10 @@ fd.psd(y, fs = NULL, normalize = TRUE, dtrend = TRUE, plot = FALSE)
 \value{
 A list object containing:
 \itemize{
-\item A data matrix \code{PSD} with columns \code{freq.norm}, \code{freq} and \code{spec}.
-\item Model output in field \code{lmfit}.
+\item A data matrix \code{PLAW} with columns \code{freq.norm}, \code{size} and \code{bulk}.
 \item Estimate of scaling exponent \code{alpha} based on a fit over the lowest 25\% frequencies (\code{low25}), or using the HD estimate \code{HD}.
 \item Estimate of the the Fractal Dimension (\code{FD}) using conversion formula's reported in Hasselman(2013).
+\item Information output by various functions.
 }
 }
 \description{

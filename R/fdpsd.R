@@ -14,10 +14,10 @@
 #'
 #' @return A list object containing:
 #' \itemize{
-#' \item A data matrix \code{PSD} with columns \code{freq.norm}, \code{freq} and \code{spec}.
-#' \item Model output in field \code{lmfit}.
+#' \item A data matrix \code{PLAW} with columns \code{freq.norm}, \code{size} and \code{bulk}.
 #' \item Estimate of scaling exponent \code{alpha} based on a fit over the lowest 25\% frequencies (\code{low25}), or using the HD estimate \code{HD}.
 #' \item Estimate of the the Fractal Dimension (\code{FD}) using conversion formula's reported in Hasselman(2013).
+#' \item Information output by various functions.
 #' }
 #'
 #' @family FD estimators
@@ -114,7 +114,14 @@ fd.psd <- function(y, fs = NULL, normalize = TRUE, dtrend = TRUE, plot = FALSE){
 #' @author Fred Hasselman
 #' @references Hasselman, F. (2013). When the blind curve is finite: dimension estimation and model inference based on empirical waveforms. Frontiers in Physiology, 4, 75. \url{http://doi.org/10.3389/fphys.2013.00075}
 #'
-#' @return Slope and FD estimate based on Hasselman(2013)
+#' @return A list object containing:
+#' \itemize{
+#' \item A data matrix \code{PLAW} with columns \code{freq.norm}, \code{size} and \code{bulk}.
+#' \item Estimate of scaling exponent \code{sap} based on a fit over the standard range (\code{fullRange}), or on a user defined range \code{fitRange}.
+#' \item Estimate of the the Fractal Dimension (\code{FD}) using conversion formula's reported in Hasselman(2013).
+#' \item Information output by various functions.
+#' }
+#'
 #' @export
 #'
 #' @family FD estimators
@@ -168,6 +175,13 @@ fd.sda <- function(y, fs = NULL, normalize = TRUE, dtrend = FALSE, scales = disp
 #'
 #'
 #' @return Estimate of Hurst exponent (slope of \code{log(bin)} vs. \code{log(RMSE))} and an FD estimate based on Hasselman(2013)
+#' A list object containing:
+#' \itemize{
+#' \item A data matrix \code{PLAW} with columns \code{freq.norm}, \code{size} and \code{bulk}.
+#' \item Estimate of scaling exponent \code{sap} based on a fit over the standard range (\code{fullRange}), or on a user defined range \code{fitRange}.
+#' \item Estimate of the the Fractal Dimension (\code{FD}) using conversion formula's reported in Hasselman(2013).
+#' \item Information output by various functions.
+#' }
 #'
 #' @export
 #'

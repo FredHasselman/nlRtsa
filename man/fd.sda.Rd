@@ -12,7 +12,13 @@ fd.sda(y, fs = NULL, normalize = TRUE, dtrend = FALSE,
 \item{normalize}{}
 }
 \value{
-Slope and FD estimate based on Hasselman(2013)
+A list object containing:
+\itemize{
+\item A data matrix \code{PLAW} with columns \code{freq.norm}, \code{size} and \code{bulk}.
+\item Estimate of scaling exponent \code{sap} based on a fit over the standard range (\code{fullRange}), or on a user defined range \code{fitRange}.
+\item Estimate of the the Fractal Dimension (\code{FD}) using conversion formula's reported in Hasselman(2013).
+\item Information output by various functions.
+}
 }
 \description{
 fd.sda

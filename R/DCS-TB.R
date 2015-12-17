@@ -251,7 +251,7 @@ PLFsmall <- function(g){
   y<-y[y>0]
   if(length(y)==2){warning("Caution... Log-Log slope is a bridge (2 points)")}
   if(length(y)<2){warning("Less than 2 points in Log-Log regression... aborting");break}
-  alpha=coef(lm(log(y) ~ poly(log(1:length(y)), degree=1), na.action="na.exclude") )[2]
+  alpha=coef(lm(log(y) ~ stats::poly(log(1:length(y)), degree=1), na.action="na.exclude") )[2]
 
   if(reload==TRUE){library(signal,verbose=FALSE,quietly=TRUE)}
 
