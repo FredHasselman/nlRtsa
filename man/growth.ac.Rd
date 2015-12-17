@@ -32,8 +32,6 @@ growth.ac(Y0 = 0.01, r = 4, type = "logistic")
 Fred Hasselman
 }
 \seealso{
-\code{\link{growth.ac.cond}}
-
 Other autocatalytic growth functions: \code{\link{growth.ac.cond}}
 }
 

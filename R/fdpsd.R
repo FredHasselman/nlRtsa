@@ -31,79 +31,77 @@
 #' @examples
 #' fd.psd(rnorm(2048), plot = TRUE)
 fd.psd <- function(y, fs = NULL, normalize = TRUE, dtrend = TRUE, plot = FALSE){
-  require(pracma)
-  require(fractal)
-  require(sapa)
-  require(ifultools)
+    require(pracma)
+    require(fractal)
+    require(sapa)
+    require(ifultools)
 
-  if(!is.ts(y)){
-    if(is.null(fs)){fs <- 1}
-    y <- ts(y, frequency = fs)
-    cat("\n\nFD.psd:\tSample rate was set to 1.\n\n")
-  }
+    if(!is.ts(y)){
+        if(is.null(fs)){fs <- 1}
+        y <- ts(y, frequency = fs)
+        cat("\n\nFD.psd:\tSample rate was set to 1.\n\n")
+    }
 
-  N             <- length(y)
-  # Simple linear detrending.
-  if(dtrend)    y <- ts(pracma::detrend(as.vector(y), tt = 'linear'), frequency = fs)
-  # Normalize using N instead of N-1.
-  if(normalize) y <- (y - mean(y, na.rm = TRUE)) / (sd(y, na.rm = TRUE)*sqrt((N-1)/N))
+    N             <- length(y)
+    # Simple linear detrending.
+    if(dtrend)    y <- ts(pracma::detrend(as.vector(y), tt = 'linear'), frequency = fs)
+    # Normalize using N instead of N-1.
+    if(normalize) y <- (y - mean(y, na.rm = TRUE)) / (sd(y, na.rm = TRUE)*sqrt((N-1)/N))
 
-  # Number of frequencies estimated cannot be set! (defaults to Nyquist)
-  # Use Tukey window: cosine taper with r = 0.5
+    # Number of frequencies estimated cannot be set! (defaults to Nyquist)
+    # Use Tukey window: cosine taper with r = 0.5
 
-  # fast = TRUE ensures padding with zeros to optimize FFT to highly composite number.
-  # However, we just pad to nextPow2, except if length already is a power of 2.
-  npads <- 1+(stats::nextn(N,factors=2)-N)/N
-  npads <- stats::nextn(N)
+    # fast = TRUE ensures padding with zeros to optimize FFT to highly composite number.
+    # However, we just pad to nextPow2, except if length already is a power of 2.
+    npad <- 1+(stats::nextn(N,factors=2)-N)/N
+    npad <- stats::nextn(N)
 
-  # if(N==npad) npad = 0
-  # psd  <- stats::spec.pgram(y, fast = FALSE, demean=FALSE, detrend=FALSE, plot=FALSE, pad=npad, taper=0.5)
+    # if(N==npad) npad = 0
+    # psd  <- stats::spec.pgram(y, fast = FALSE, demean=FALSE, detrend=FALSE, plot=FALSE, pad=npad, taper=0.5)
 
-  Tukey <- sapa::taper(type="raised cosine", flatness = 0.5, n.sample = npad)
-  psd   <- sapa::SDF(y, taper. = Tukey, npad = npad)
+    Tukey <- sapa::taper(type="raised cosine", flatness = 0.5, n.sample = npad)
+    psd   <- sapa::SDF(y, taper. = Tukey, npad = npad)
 
-  powspec <- cbind.data.frame(freq.norm = attr(psd, "frequency")[-1], freq = attr(psd, "frequency")[-1]*frequency(y), spec = as.matrix(psd)[-1])
+    powspec <- cbind.data.frame(freq.norm = attr(psd, "frequency")[-1], size = attr(psd, "frequency")[-1]*frequency(y), bulk = as.matrix(psd)[-1])
 
-  # First check the global slope for anti-persistent noise (GT +0.20)
-  # If so, fit the line starting from the highest frequency
-  nr     <- length(powspec[,1])
-  lsfit  <- lm(log(powspec$spec[2:nr]) ~ log(powspec$freq[2:nr]))
-  glob   <- coef(lsfit)[2]
+    # First check the global slope for anti-persistent noise (GT +0.20)
+    # If so, fit the line starting from the highest frequency
+    nr     <- length(powspec[,1])
+    lsfit  <- lm(log(powspec$bulk[1:nr]) ~ log(powspec$size[1:nr]))
+    glob   <- coef(lsfit)[2]
 
-  # General guideline: fit over 25% frequencies
-  # If signal is continuous (sampled) consider Wijnants et al. (2013) log-log fitting procedure
-  nr <- fractal::HDEst(NFT = length(powspec[,1]), sdf = psd)
+    # General guideline: fit over 25% frequencies
+    # If signal is continuous (sampled) consider Wijnants et al. (2013) log-log fitting procedure
+    nr <- fractal::HDEst(NFT = length(powspec[,1]), sdf = psd)
 
-  exp1 <- hurstSpec(y, sdf.method = "direct", freq.max = 0.25, taper. = Tukey )
-  exp2 <- hurstSpec(y, sdf.method = "direct", freq.max = powspec$freq.norm[nr], taper. = Tukey)
+    exp1 <- hurstSpec(y, sdf.method = "direct", freq.max = 0.25, taper. = Tukey )
+    exp2 <- hurstSpec(y, sdf.method = "direct", freq.max = powspec$freq.norm[nr], taper. = Tukey)
 
-  ifelse((glob > 0.2), {
-    lmfit1 <- lm(log(rev(powspec$spec[powspec$freq<=0.25])) ~ log(rev(powspec$freq[powspec$freq<=0.25])))
-    lmfit2 <- lm(log(rev(powspec$spec[1:nr])) ~ log(rev(powspec$freq[1:nr])))
-  },{
-    lmfit1 <- lm(log(powspec$spec[powspec$freq<=0.25]) ~ log(powspec$freq[powspec$freq<=0.25]))
-    lmfit2 <- lm(log(powspec$spec[1:nr]) ~ log(powspec$freq[1:nr]))
-  })
+    ifelse((glob > 0.2), {
+        lmfit1 <- lm(log(rev(powspec$bulk[powspec$size<=0.25])) ~ log(rev(powspec$size[powspec$size<=0.25])))
+        lmfit2 <- lm(log(rev(powspec$bulk[1:nr])) ~ log(rev(powspec$size[1:nr])))
+    },{
+        lmfit1 <- lm(log(powspec$bulk[powspec$size<=0.25]) ~ log(powspec$size[powspec$size<=0.25]))
+        lmfit2 <- lm(log(powspec$bulk[1:nr]) ~ log(powspec$size[1:nr]))
+    })
 
-  if(plot){
+    if(plot){
+        old<- ifultools::splitplot(2,1,1)
+        plot(y,ylab = "Y", main = paste0('Lowest 25%    sap: ', round(coef(lmfit1)[2],digits=2), ' | H:', round(exp1,digits=2), ' | FD:',round(psd2fd(coef(lmfit1)[2]),digits=2),'\nHurvic-Deo    sap: ', round(coef(lmfit2)[2],digits=2), ' | H:', round(exp2,digits=2), ' | FD:',round(psd2fd(coef(lmfit2)[2]),digits=2)))
+        ifultools::splitplot(2,1,2)
+        plot(log(powspec$spec) ~ log(powspec$freq), xlab="log(Frequency)", ylab = "log(Power)")
+        lines(log(powspec$freq[powspec$freq<=0.25]), predict(lmfit1),lwd=3,col="darkred")
+        lines(log(powspec$freq[1:nr]), predict(lmfit2),lwd=3,col="darkblue")
+        legend("bottomleft",c(paste0("lowest 25% (n = ",sum(powspec$freq<=0.25),")"), paste0("Hurvic-Deo estimate (n = ",nr,")")), lwd=c(3,3),col=c("darkred","darkblue"), cex = .8)
+        par(old)
+    }
 
-    old<- ifultools::splitplot(2,1,1)
-    plot(y,ylab = "Y")
-    ifultools::splitplot(2,1,2)
-    plot(log(powspec$spec) ~ log(powspec$freq), xlab="log(Frequency)", ylab = "log(Power)")
-    lines(log(powspec$freq[powspec$freq<=0.25]), predict(lmfit1),lwd=3,col="darkred")
-    lines(log(powspec$freq[1:nr]), predict(lmfit2),lwd=3,col="darkblue")
-    legend("bottomleft",c(paste0("lowest 25% (n = ",sum(powspec$freq<=0.25),")"), paste0("Hurvic-Deo estimate (n = ",nr,")")), lwd=c(3,3),col=c("darkred","darkblue"), cex = .8)
-    title(main = paste0('Lowest 25%    alpha: ', round(coef(lmfit1)[2],digits=2), ' | H:', round(exp1,digits=2), ' | FD:',round(psd2fd(coef(lmfit1)[2]),digits=2),'\nHurvic-Deo    aplha: ', round(coef(lmfit2)[2],digits=2), ' | H:', round(exp2,digits=2), ' | FD:',round(psd2fd(coef(lmfit2)[2]),digits=2)))
-    par(old)
-  }
-
-  return(list(
-    PSD   = powspec,
-    low25 = list(alpha = coef(lmfit1)[2], H = exp1, FD = psd2fd(coef(lmfit1)[2]), fitlm1 = lmfit1),
-    HD    = list(alpha = coef(lmfit2)[2], H = exp2, FD = psd2fd(coef(lmfit2)[2]), fitlm2 = lmfit2),
-    info  = psd)
-  )
+    return(list(
+        PLAW  = powspec,
+        low25 = list(sap = coef(lmfit1)[2], H = exp1, FD = psd2fd(coef(lmfit1)[2]), fitlm1 = lmfit1),
+        HD    = list(sap = coef(lmfit2)[2], H = exp2, FD = psd2fd(coef(lmfit2)[2]), fitlm2 = lmfit2),
+        info  = psd)
+    )
 }
 
 #' fd.sda
@@ -121,21 +119,53 @@ fd.psd <- function(y, fs = NULL, normalize = TRUE, dtrend = TRUE, plot = FALSE){
 #'
 #' @family FD estimators
 #' @examples
-fd.sda <- function(y, normalize = TRUE){
-  if(normalize){y <- scale(y)}
+fd.sda <- function(y, fs = NULL, normalize = TRUE, dtrend = FALSE, scales = dispersion(y)$scale, fitRange = c(scales[2], scales[length(scales)-1]), plot = FALSE){
+    require(pracma)
+    require(fractal)
 
-  out           <- dispersion(y)
-  maxbin        <- length(out$sd)-2
-  lsfit         <- lm(log(out$sd[2:maxbin]) ~ log(out$scale[2:maxbin]))
-  return(Slope=c(coef(lsfit)[2],FD=sda2fd(coef(lsfit)[2])))
+    if(!is.ts(y)){
+        if(is.null(fs)){fs <- 1}
+        y <- ts(y, frequency = fs)
+        cat("\n\nfd.sda:\tSample rate was set to 1.\n\n")
+    }
+
+    N             <- length(y)
+    # Simple linear detrending.
+    if(dtrend)    y <- ts(pracma::detrend(as.vector(y), tt = 'linear'), frequency = fs)
+    # Normalize using N instead of N-1.
+    if(normalize) y <- (y - mean(y, na.rm = TRUE)) / (sd(y, na.rm = TRUE)*sqrt((N-1)/N))
+
+    bins          <- which(fitRange[1]==scales):which(fitRange[2]==scales)
+    out           <- dispersion(y, front = FALSE)
+    lmfit1        <- lm(log(out$sd) ~ log(out$scale))
+    lmfit2        <- lm(log(out$sd[bins]) ~ log(out$scale[bins]))
+
+    if(plot){
+        old<- ifultools::splitplot(2,1,1)
+        plot(y,ylab = "Y", main = paste0('Full    sap: ', round(coef(lmfit1)[2],digits=2), ' | H:', round(1+coef(lmfit1)[2],digits=2), ' | FD:',round(psd2fd(coef(lmfit1)[2]),digits=2),'\nRange    sap: ', round(coef(lmfit2)[2],digits=2), ' | H:', round(1+coef(lmfit1)[2],digits=2), ' | FD:',round(psd2fd(coef(lmfit2)[2]),digits=2)))
+        ifultools::splitplot(2,1,2)
+        plot(log(out$sd) ~ log(out$scale), xlab="log(Bin Size)", ylab = "log(SD)")
+        lines(log(out$scale), predict(lmfit1),lwd=3,col="darkred")
+        lines(log(out$scale[bins]), predict(lmfit2),lwd=3,col="darkblue")
+        legend("topright",c(paste0("Full (n = ",length(out$scale),")"), paste0("Range (n = ",length(bins),")")), lwd=c(3,3),col=c("darkred","darkblue"), cex = .8)
+        par(old)
+    }
+
+    return(list(
+        PLAW  =  cbind.data.frame(freq.norm = frequency(y)/scales, size = out$scale, bulk = out$sd),
+                                  fullRange = list(sap = coef(lmfit1)[2], H = 1+coef(lmfit1)[2], FD = sda2fd(coef(lmfit1)[2]), fitlm1 = lmfit1),
+                                  fitRange  = list(sap = coef(lmfit1)[2], H = 1+coef(lmfit2)[2], FD = sda2fd(coef(lmfit2)[2]), fitlm2 = lmfit2),
+                                  info = out)
+    )
 }
 
-#' Title
+#' fd.dfa
 #'
 #' @title Detrended Fluctuation Analysis (DFA)
 #'
 #' @param y
 #' @param dmethod
+#'
 #'
 #' @return Estimate of Hurst exponent (slope of \code{log(bin)} vs. \code{log(RMSE))} and an FD estimate based on Hasselman(2013)
 #'
@@ -146,10 +176,138 @@ fd.sda <- function(y, normalize = TRUE){
 #'
 #' @family FD estimators
 #' @examples
-fd.dfa <- function(y, dmethod = "poly1"){
-  out           <- DFA(y, detrend=dmethod, sum.order=1, scale.max=trunc(length(y)/4), scale.min=4, scale.ratio=2^(1/4), verbose=FALSE)
-  return(c(H=attributes(out)$logfit[]$coefficients['x'],FD=dfa2fd(attributes(out)$logfit[]$coefficients['x'])))
-  }
+fd.dfa <- function(y, fs = NULL, dtrend = "poly1", normalize = FALSE, sum.order = 1, scale.max=trunc(length(y)/4), scale.min=4, scale.ratio=2^(1/4), overlap = 0.5, plot = FALSE){
+    require(pracma)
+    require(fractal)
+
+    if(!is.ts(y)){
+        if(is.null(fs)){fs <- 1}
+        y <- ts(y, frequency = fs)
+        cat("\n\nfd.dfa:\tSample rate was set to 1.\n\n")
+    }
+
+    N             <- length(y)
+    # Normalize using N instead of N-1.
+    if(normalize) y <- (y - mean(y, na.rm = TRUE)) / (sd(y, na.rm = TRUE)*sqrt((N-1)/N))
+
+    out1 <- DFA(y, detrend=dtrend, sum.order=sum.order, scale.max=trunc(length(y)/2), scale.min=2, scale.ratio=2, overlap = 0, verbose=FALSE)
+    out2 <- DFA(y, detrend=dtrend, sum.order=sum.order, scale.max=scale.max, scale.min=scale.min, scale.ratio=scale.ratio, overlap = overlap, verbose=FALSE)
+
+    lmfit1        <- lm(log(attributes(out1)$stat) ~ log(attributes(out1)$scale))
+    lmfit2        <- lm(log(attributes(out2)$stat) ~ log(attributes(out2)$scale))
+
+    if(plot){
+        old<- ifultools::splitplot(2,1,1)
+        plot(y,ylab = "Y", main = paste0('Full    sap: ', round(coef(lmfit1)[2],digits=2), ' | H:',
+                                         round(attributes(out1)$logfit[]$coefficients['x'] ,digits=2), ' | FD:',
+                                         round(dfa2fd(coef(lmfit1)[2]),digits=2),'\nRange    sap: ',
+                                         round(coef(lmfit2)[2],digits=2), ' | H:',
+                                         round( attributes(out2)$logfit[]$coefficients['x'] ,digits=2), ' | FD:',
+                                         round(dfa2fd(coef(lmfit2)[2]),digits=2)
+                                         )
+             )
+        ifultools::splitplot(2,1,2)
+        plot(log(attributes(out1)$stat) ~ log(attributes(out1)$scale), xlab="log(Bin Size)", ylab = "log(RMSE)")
+        lines(log(attributes(out1)$scale), predict(lmfit1),lwd=3,col="darkred")
+        lines(log(attributes(out2)$scale), predict(lmfit2),lwd=3,col="darkblue")
+        legend("topleft",c(paste0("Full (n = ",length(attributes(out1)$scale),")"), paste0("Range (n = ",length(attributes(out2)$scale),")")), lwd=c(3,3),col=c("darkred","darkblue"), cex = .8)
+        par(old)
+    }
+
+    return(list(
+        PLAW  =  cbind.data.frame(freq.norm = scale.R(attributes(out)$scale*frequency(y)), size = attributes(out)$scale, bulk = attributes(out)$stat),
+                                  fullRange = list(sap = coef(lmfit1)[2], H = attributes(out)$logfit[]$coefficients['x'] , FD = dfa2fd(coef(lmfit1)[2]), fitlm1 = lmfit1),
+                                  fitRange  = list(sap = coef(lmfit2)[2], H = coef(lmfit2)[2], FD = dfa2fd(coef(lmfit2)[2]), fitlm2 = lmfit2),
+                                  info = out)
+        )
+}
+
+
+#' psd2fd
+#'
+#' @description Conversion formula: From periodogram based self-affinity parameter estimate (\code{sap}) to an informed estimate of the (fractal) dimension (FD).
+#' @param sap Self-afinity parameter estimate based on PSD slope (e.g., \code{\link{fd.psd}})).
+#'
+#' @return An informed estimate of the Fractal Dimension, see Hasselman(2013) for details.
+#' @export
+#'
+#' @details The spectral slope will be converted to a dimension estimate using:
+#'
+#' \deqn{D_{PSD}\approx\frac{3}{2}+\frac{14}{33}*\tanh\left(Slope * \ln(1+\sqrt{2})\right)}{D_{PSD} ≈ 3/2 + ((14/33)*tanh(sap*log(1+sqrt(2))))}
+#'
+#' @author Fred Hasselman
+#' @references Hasselman, F. (2013). When the blind curve is finite: dimension estimation and model inference based on empirical waveforms. Frontiers in Physiology, 4, 75. \url{http://doi.org/10.3389/fphys.2013.00075}
+#' @examples
+#' # Informed FD of white noise
+#' psd2fd(0)
+#'
+#' # Informed FD of Brownian noise
+#' psd2fd(-2)
+#'
+#' # Informed FD of blue noise
+#' psd2fd(2)
+psd2fd <- function(sap){return(round(3/2 + ((14/33)*tanh(sap*log(1+sqrt(2)))), digits = 2))}
+
+
+#' DFA slope (H in DFA)
+#'
+#' @description Conversion formula: Detrended Fluctuation Analysis (DFA) estimate of the Hurst exponent (a self-affinity parameter \code{sap}) to an informed estimate of the (fractal) dimension (FD).
+#'
+#' @param sap Self-afinity parameter estimate based on DFA slope (e.g., \code{\link{fd.sda}})).
+#'
+#' @return An informed estimate of the Fractal Dimension, see Hasselman(2013) for details.
+#'
+#' @export
+#'
+#' @details The DFA slope (H) will be converted to a dimension estimate using:
+#'
+#' \deqn{D_{DFA}\approx 2-(\tanh(\log(3)*sap)) }{D_{DFA} ≈ 2-(tanh(log(3)*sap)) }
+#'
+#' @author Fred Hasselman
+#' @references Hasselman, F. (2013). When the blind curve is finite: dimension estimation and model inference based on empirical waveforms. Frontiers in Physiology, 4, 75. \url{http://doi.org/10.3389/fphys.2013.00075}
+#'
+#' @examples
+#' # Informed FD of white noise
+#' dfa2fd(0.5)
+#'
+#' # Informed FD of Pink noise
+#' dfa2fd(1)
+#'
+#' # Informed FD of blue noise
+#' dfa2fd(0.1)
+dfa2fd <- function(sap){return(round(2-(tanh(log(3)*sap)), digits = 2))}
+
+
+
+#' sda2fd
+#'
+#' @description Conversion formula: Standardised Dispersion Analysis (SDA) estimate of self-affinity parameter (\code{sap}) to an informed estimate of the (fractal) dimension (FD).
+#'
+#' @param sap Self-afinity parameter estimate based on SDA slope (e.g., \code{\link{fd.sda}})).
+#'
+#' @details
+#'
+#'
+#' Note that for some signals different PSD slope values project to a single SDA slope. That is, SDA cannot distinguish between all variaties of power-law scaling in the frequency domain.
+#'
+#' @return An informed estimate of the Fractal Dimension, see Hasselman(2013) for details.
+#' @export
+#'
+#' @author Fred Hasselman
+#' @references Hasselman, F. (2013). When the blind curve is finite: dimension estimation and model inference based on empirical waveforms. Frontiers in Physiology, 4, 75. \url{http://doi.org/10.3389/fphys.2013.00075}
+#'
+#' @examples
+#' # Informed FD of white noise
+#' sda2fd(-0.5)
+#'
+#' # Informed FD of Brownian noise
+#' sda2fd(-1)
+#'
+#' # Informed FD of blue noise
+#' sda2fd(-0.9)
+sda2fd <- function(sap){return(1-sap)}
+
+
 
 
 #

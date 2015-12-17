@@ -4,7 +4,9 @@
 \alias{fd.dfa}
 \title{Detrended Fluctuation Analysis (DFA)}
 \usage{
-fd.dfa(y, dmethod = "poly1")
+fd.dfa(y, fs = NULL, dtrend = "poly1", normalize = FALSE, sum.order = 1,
+  scale.max = trunc(length(y)/4), scale.min = 4, scale.ratio = 2^(1/4),
+  overlap = 0.5, plot = FALSE)
 }
 \arguments{
 \item{dmethod}{}
@@ -13,7 +15,7 @@ fd.dfa(y, dmethod = "poly1")
 Estimate of Hurst exponent (slope of \code{log(bin)} vs. \code{log(RMSE))} and an FD estimate based on Hasselman(2013)
 }
 \description{
-Title
+fd.dfa
 }
 \author{
 Fred Hasselman

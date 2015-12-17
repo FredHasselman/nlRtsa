@@ -35,61 +35,62 @@ in.IT <- function(need=NULL,inT=TRUE){
     }
     ok <- sapply(1:length(need),function(p) require(need[[p]],character.only=TRUE))
 }
-#' @title Wrapper for in.IT: Load I/O and data handling tools
-#'
-#' @rdname in.IT
-#'
-#' @export
-#'
-#' @examples
-#' in.IO()
-in.IO <- function(need = c("xlsx","plyr","doBy","reshape2","RCurl","XML","httr","dplyr")){
-    in.IT(need)
-}
-#' @title Wrapper for in.IT: Parallel computing tools
-#'
-#' @rdname in.IT
-#'
-#' @export
-#'
-#' @examples
-#' in.PAR()
-in.PAR <- function(need = c("parallel","doParallel","foreach")){
-    in.IT(need)
-}
-#' @title Wrapper for in.IT: Tools for plotting
-#'
-#' @rdname in.IT
-#'
-#' @export
-#'
-#' @examples
-#' in.PLOT()
-in.PLOT <- function(need = c("lattice","latticeExtra","gplots","ggplot2","grid","gridExtra","scales","effects","RColorBrewer")){
-    in.IT(need)
-}
-#' @title Wrapper for in.IT: Nonlinear Time Series packages
-#'
-#' @rdname in.IT
-#'
-#' @export
-#'
-#' @examples
-#' in.NLTS()
-in.NLTS <- function(need = c("fractaldim","fractalrock","RTisean","tsDyn","tseries","tseriesChaos")){
-    in.IT(need)
-}
-#' @title Wrapper for in.IT: Signal analysis packages
-#'
-#' @rdname in.IT
-#'
-#' @export
-#'
-#' @examples
-#' in.SN()
-in.SIGN <- function(need=c("pracma","signal","EMD","hht","matlab","oce")){
-    in.IT(need)
-}
+# #' @title Wrapper for in.IT: Load I/O and data handling tools
+# #'
+# #' @rdname in.IT
+# #'
+# #' @export
+# #'
+# #' @examples
+# #' in.IO()
+# in.IO <- function(need = c("xlsx","plyr","doBy","reshape2","RCurl","XML","httr","dplyr")){
+#     in.IT(need)
+# }
+# #' @title Wrapper for in.IT: Parallel computing tools
+# #'
+# #' @rdname in.IT
+# #'
+# #' @export
+# #'
+# #' @examples
+# #' in.PAR()
+# in.PAR <- function(need = c("parallel","doParallel","foreach")){
+#     in.IT(need)
+# }
+# #' @title Wrapper for in.IT: Tools for plotting
+# #'
+# #' @rdname in.IT
+# #'
+# #' @export
+# #'
+# #' @examples
+# #' in.PLOT()
+# in.PLOT <- function(need = c("lattice","latticeExtra","gplots","ggplot2","grid","gridExtra","scales","effects","RColorBrewer")){
+#     in.IT(need)
+# }
+# #' @title Wrapper for in.IT: Nonlinear Time Series packages
+# #'
+# #' @rdname in.IT
+# #'
+# #' @export
+# #'
+# #' @examples
+# #' in.NLTS()
+# in.NLTS <- function(need = c("fractaldim","fractalrock","RTisean","tsDyn","tseries","tseriesChaos")){
+#     in.IT(need)
+# }
+# #' @title Wrapper for in.IT: Signal analysis packages
+# #'
+# #' @rdname in.IT
+# #'
+# #' @export
+# #'
+# #' @examples
+# #' in.SN()
+# in.SIGN <- function(need=c("pracma","signal","EMD","hht","matlab","oce")){
+#     in.IT(need)
+# }
+
 #' @title Un-initialise It
 #' @description Unload and/or uninstall R packages.
 #' @param loose    A vector of package names to be unloaded.

@@ -42,8 +42,6 @@ xyplot(growth.ac.cond(cond=cond))
 Fred Hasselman
 }
 \seealso{
-\code{\link{growth.ac.cond}}
-
 Other autocatalytic growth functions: \code{\link{growth.ac}}
 }
 
