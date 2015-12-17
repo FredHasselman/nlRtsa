@@ -89,10 +89,10 @@ fd.psd <- function(y, fs = NULL, normalize = TRUE, dtrend = TRUE, plot = FALSE){
         old<- ifultools::splitplot(2,1,1)
         plot(y,ylab = "Y", main = paste0('Lowest 25%    sap: ', round(coef(lmfit1)[2],digits=2), ' | H:', round(exp1,digits=2), ' | FD:',round(psd2fd(coef(lmfit1)[2]),digits=2),'\nHurvic-Deo    sap: ', round(coef(lmfit2)[2],digits=2), ' | H:', round(exp2,digits=2), ' | FD:',round(psd2fd(coef(lmfit2)[2]),digits=2)))
         ifultools::splitplot(2,1,2)
-        plot(log(powspec$spec) ~ log(powspec$freq), xlab="log(Frequency)", ylab = "log(Power)")
-        lines(log(powspec$freq[powspec$freq<=0.25]), predict(lmfit1),lwd=3,col="darkred")
-        lines(log(powspec$freq[1:nr]), predict(lmfit2),lwd=3,col="darkblue")
-        legend("bottomleft",c(paste0("lowest 25% (n = ",sum(powspec$freq<=0.25),")"), paste0("Hurvic-Deo estimate (n = ",nr,")")), lwd=c(3,3),col=c("darkred","darkblue"), cex = .8)
+        plot(log(powspec$bulk) ~ log(powspec$size), xlab="log(Frequency)", ylab = "log(Power)")
+        lines(log(powspec$size[powspec$size<=0.25]), predict(lmfit1),lwd=3,col="darkred")
+        lines(log(powspec$size[1:nr]), predict(lmfit2),lwd=3,col="darkblue")
+        legend("bottomleft",c(paste0("lowest 25% (n = ",sum(powspec$size<=0.25),")"), paste0("Hurvic-Deo estimate (n = ",nr,")")), lwd=c(3,3),col=c("darkred","darkblue"), cex = .8)
         par(old)
     }
 
@@ -126,7 +126,7 @@ fd.psd <- function(y, fs = NULL, normalize = TRUE, dtrend = TRUE, plot = FALSE){
 #'
 #' @family FD estimators
 #' @examples
-fd.sda <- function(y, fs = NULL, normalize = TRUE, dtrend = FALSE, scales = dispersion(y)$scale, fitRange = c(scales[2], scales[length(scales)-1]), plot = FALSE){
+fd.sda <- function(y, fs = NULL, normalize = TRUE, dtrend = FALSE, scales = dispersion(y)$scale, fitRange = c(scales[1], scales[length(scales)-2]), plot = FALSE){
     require(pracma)
     require(fractal)
 
@@ -149,19 +149,19 @@ fd.sda <- function(y, fs = NULL, normalize = TRUE, dtrend = FALSE, scales = disp
 
     if(plot){
         old<- ifultools::splitplot(2,1,1)
-        plot(y,ylab = "Y", main = paste0('Full    sap: ', round(coef(lmfit1)[2],digits=2), ' | H:', round(1+coef(lmfit1)[2],digits=2), ' | FD:',round(psd2fd(coef(lmfit1)[2]),digits=2),'\nRange    sap: ', round(coef(lmfit2)[2],digits=2), ' | H:', round(1+coef(lmfit1)[2],digits=2), ' | FD:',round(psd2fd(coef(lmfit2)[2]),digits=2)))
+        plot(y,ylab = "Y", main = paste0('Full    sap: ', round(coef(lmfit1)[2],digits=2), ' | H:', round(1+coef(lmfit1)[2],digits=2), ' | FD:',round(sda2fd(coef(lmfit1)[2]),digits=2),'\nRange    sap: ', round(coef(lmfit2)[2],digits=2), ' | H:', round(1+coef(lmfit1)[2],digits=2), ' | FD:',round(sda2fd(coef(lmfit2)[2]),digits=2)))
         ifultools::splitplot(2,1,2)
         plot(log(out$sd) ~ log(out$scale), xlab="log(Bin Size)", ylab = "log(SD)")
         lines(log(out$scale), predict(lmfit1),lwd=3,col="darkred")
         lines(log(out$scale[bins]), predict(lmfit2),lwd=3,col="darkblue")
-        legend("topright",c(paste0("Full (n = ",length(out$scale),")"), paste0("Range (n = ",length(bins),")")), lwd=c(3,3),col=c("darkred","darkblue"), cex = .8)
+        legend("bottomleft",c(paste0("Full (n = ",length(out$scale),")"), paste0("Range (n = ",length(bins),")")), lwd=c(3,3),col=c("darkred","darkblue"), cex = .8)
         par(old)
     }
 
     return(list(
         PLAW  =  cbind.data.frame(freq.norm = frequency(y)/scales, size = out$scale, bulk = out$sd),
                                   fullRange = list(sap = coef(lmfit1)[2], H = 1+coef(lmfit1)[2], FD = sda2fd(coef(lmfit1)[2]), fitlm1 = lmfit1),
-                                  fitRange  = list(sap = coef(lmfit1)[2], H = 1+coef(lmfit2)[2], FD = sda2fd(coef(lmfit2)[2]), fitlm2 = lmfit2),
+                                  fitRange  = list(sap = coef(lmfit2)[2], H = 1+coef(lmfit2)[2], FD = sda2fd(coef(lmfit2)[2]), fitlm2 = lmfit2),
                                   info = out)
     )
 }
@@ -190,7 +190,7 @@ fd.sda <- function(y, fs = NULL, normalize = TRUE, dtrend = FALSE, scales = disp
 #'
 #' @family FD estimators
 #' @examples
-fd.dfa <- function(y, fs = NULL, dtrend = "poly1", normalize = FALSE, sum.order = 1, scale.max=trunc(length(y)/4), scale.min=4, scale.ratio=2^(1/4), overlap = 0.5, plot = FALSE){
+fd.dfa <- function(y, fs = NULL, dtrend = "poly1", normalize = FALSE, sum.order = 1, scale.max=trunc(length(y)/4), scale.min=4, scale.ratio=2^(1/4), overlap = 0, plot = FALSE){
     require(pracma)
     require(fractal)
 

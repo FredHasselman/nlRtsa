@@ -5,8 +5,8 @@
 \title{Standardised Dispersion Analysis (SDA).}
 \usage{
 fd.sda(y, fs = NULL, normalize = TRUE, dtrend = FALSE,
-  scales = dispersion(y)$scale, fitRange = c(scales[2],
-  scales[length(scales) - 1]), plot = FALSE)
+  scales = dispersion(y)$scale, fitRange = c(scales[1],
+  scales[length(scales) - 2]), plot = FALSE)
 }
 \arguments{
 \item{normalize}{}
