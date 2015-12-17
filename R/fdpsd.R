@@ -229,10 +229,10 @@ fd.dfa <- function(y, fs = NULL, dtrend = "poly1", normalize = FALSE, sum.order 
     }
 
     return(list(
-        PLAW  =  cbind.data.frame(freq.norm = scale.R(attributes(out)$scale*frequency(y)), size = attributes(out)$scale, bulk = attributes(out)$stat),
-                                  fullRange = list(sap = coef(lmfit1)[2], H = attributes(out)$logfit[]$coefficients['x'] , FD = dfa2fd(coef(lmfit1)[2]), fitlm1 = lmfit1),
+        PLAW  =  cbind.data.frame(freq.norm = scale.R(attributes(out1)$scale*frequency(y)), size = attributes(out1)$scale, bulk = attributes(out1)$stat),
+                                  fullRange = list(sap = coef(lmfit1)[2], H = attributes(out1)$logfit[]$coefficients['x'] , FD = dfa2fd(coef(lmfit1)[2]), fitlm1 = lmfit1),
                                   fitRange  = list(sap = coef(lmfit2)[2], H = coef(lmfit2)[2], FD = dfa2fd(coef(lmfit2)[2]), fitlm2 = lmfit2),
-                                  info = out)
+                                  info = list(out1,out2))
         )
 }
 
