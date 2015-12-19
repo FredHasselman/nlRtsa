@@ -4,9 +4,9 @@
 \alias{fd.dfa}
 \title{Detrended Fluctuation Analysis (DFA)}
 \usage{
-fd.dfa(y, fs = NULL, dtrend = "poly1", normalize = FALSE, sum.order = 1,
-  scale.max = trunc(length(y)/4), scale.min = 4, scale.ratio = 2^(1/4),
-  overlap = 0.5, plot = FALSE)
+\method{fd}{dfa}(y, fs = NULL, dtrend = "poly1", normalize = FALSE,
+  sum.order = 1, scale.max = trunc(length(y)/4), scale.min = 4,
+  scale.ratio = 2^(1/4), overlap = 0, plot = FALSE)
 }
 \arguments{
 \item{dmethod}{}

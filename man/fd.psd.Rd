@@ -4,7 +4,8 @@
 \alias{fd.psd}
 \title{Power Spectral Density Slope (PSD).}
 \usage{
-fd.psd(y, fs = NULL, normalize = TRUE, dtrend = TRUE, plot = FALSE)
+\method{fd}{psd}(y, fs = NULL, normalize = TRUE, dtrend = TRUE,
+  plot = FALSE)
 }
 \arguments{
 \item{y}{A numeric vector or time series object.}
@@ -28,8 +29,6 @@ A list object containing:
 Estimate Alpha, Hurst Exponent and Fractal Dimension through log-log slope.
 }
 \details{
-fd.psd
-
 Calls function \code{\link[sapa]{SDF}} to estimate the scaling exponent of a timeseries based on the periodogram frequency spectrum. After detrending and normalizing the signal (if requested), \code{SDF} is called using a Tukey window (\code{raised cosine \link[sapa]{taper}}).
 
 A line is fitted on the periodogram in log-log coordinates. Two fit-ranges are used: The 25\% lowest frequencies and the Hurvich-Deo estimate (\code{\link[fractal]{HDEst}}).

@@ -1,5 +1,27 @@
-#' fd.psd
-#'
+fd <- function(y, ...) UseMethod("fd")
+
+fd.default <- function(y, ...){
+
+    cat("No type specified.\nReturning exponential growth power law.")
+
+    r = 1.01
+    y <- growth.ac(Y0=0.001, r=r, N=2048, type = "driving")
+    tsp(y) <-c(1/500,2048/500,500)
+    bulk <- log1p(hist(y,plot = F, breaks = seq(0,max(y),length.out = 129))$counts)
+    size <- log1p(seq(0,2047,length.out = 128))
+    id<-bulk==0
+
+    lmfit <- lm(bulk[!id] ~ size[!id])
+
+    old <- ifultools::splitplot(2,1,1)
+    plot(y, ylab = "Y", main = paste0('Exponential growth  sap: ', round(coef(lmfit)[2],digits=2), ' | r:', r))
+    ifultools::splitplot(2,1,2)
+    plot(size[!id],bulk[!id], xlab="Size = log(bin(Time))", ylab = "Bulk = logbin(Y)", pch=21, bg="grey60", pty="s")
+    lines(size[!id], predict(lmfit),lwd=4,col="darkred")
+    #legend("bottomleft",c(paste0("Range (n = ",sum(powspec$size<=0.25),")"), paste0("Hurvic-Deo estimate (n = ",nr,")")), lwd=c(3,3),col=c("darkred","darkblue"), cex = .8)
+    par(old)
+}
+
 #' @title Power Spectral Density Slope (PSD).
 
 #' @description Estimate Alpha, Hurst Exponent and Fractal Dimension through log-log slope.
@@ -104,6 +126,9 @@ fd.psd <- function(y, fs = NULL, normalize = TRUE, dtrend = TRUE, plot = FALSE){
     )
 }
 
+
+# SDA -------------------------------------------------
+
 #' fd.sda
 #'
 #' @title Standardised Dispersion Analysis (SDA).
@@ -165,6 +190,9 @@ fd.sda <- function(y, fs = NULL, normalize = TRUE, dtrend = FALSE, scales = disp
                                   info = out)
     )
 }
+
+
+# DFS ---------------------------------------------
 
 #' fd.dfa
 #'
@@ -235,93 +263,6 @@ fd.dfa <- function(y, fs = NULL, dtrend = "poly1", normalize = FALSE, sum.order 
                                   info = list(out1,out2))
         )
 }
-
-
-#' psd2fd
-#'
-#' @description Conversion formula: From periodogram based self-affinity parameter estimate (\code{sap}) to an informed estimate of the (fractal) dimension (FD).
-#' @param sap Self-afinity parameter estimate based on PSD slope (e.g., \code{\link{fd.psd}})).
-#'
-#' @return An informed estimate of the Fractal Dimension, see Hasselman(2013) for details.
-#' @export
-#'
-#' @details The spectral slope will be converted to a dimension estimate using:
-#'
-#' \deqn{D_{PSD}\approx\frac{3}{2}+\frac{14}{33}*\tanh\left(Slope * \ln(1+\sqrt{2})\right)}{D_{PSD} ≈ 3/2 + ((14/33)*tanh(sap*log(1+sqrt(2))))}
-#'
-#' @author Fred Hasselman
-#' @references Hasselman, F. (2013). When the blind curve is finite: dimension estimation and model inference based on empirical waveforms. Frontiers in Physiology, 4, 75. \url{http://doi.org/10.3389/fphys.2013.00075}
-#' @examples
-#' # Informed FD of white noise
-#' psd2fd(0)
-#'
-#' # Informed FD of Brownian noise
-#' psd2fd(-2)
-#'
-#' # Informed FD of blue noise
-#' psd2fd(2)
-psd2fd <- function(sap){return(round(3/2 + ((14/33)*tanh(sap*log(1+sqrt(2)))), digits = 2))}
-
-
-#' DFA slope (H in DFA)
-#'
-#' @description Conversion formula: Detrended Fluctuation Analysis (DFA) estimate of the Hurst exponent (a self-affinity parameter \code{sap}) to an informed estimate of the (fractal) dimension (FD).
-#'
-#' @param sap Self-afinity parameter estimate based on DFA slope (e.g., \code{\link{fd.sda}})).
-#'
-#' @return An informed estimate of the Fractal Dimension, see Hasselman(2013) for details.
-#'
-#' @export
-#'
-#' @details The DFA slope (H) will be converted to a dimension estimate using:
-#'
-#' \deqn{D_{DFA}\approx 2-(\tanh(\log(3)*sap)) }{D_{DFA} ≈ 2-(tanh(log(3)*sap)) }
-#'
-#' @author Fred Hasselman
-#' @references Hasselman, F. (2013). When the blind curve is finite: dimension estimation and model inference based on empirical waveforms. Frontiers in Physiology, 4, 75. \url{http://doi.org/10.3389/fphys.2013.00075}
-#'
-#' @examples
-#' # Informed FD of white noise
-#' dfa2fd(0.5)
-#'
-#' # Informed FD of Pink noise
-#' dfa2fd(1)
-#'
-#' # Informed FD of blue noise
-#' dfa2fd(0.1)
-dfa2fd <- function(sap){return(round(2-(tanh(log(3)*sap)), digits = 2))}
-
-
-
-#' sda2fd
-#'
-#' @description Conversion formula: Standardised Dispersion Analysis (SDA) estimate of self-affinity parameter (\code{sap}) to an informed estimate of the (fractal) dimension (FD).
-#'
-#' @param sap Self-afinity parameter estimate based on SDA slope (e.g., \code{\link{fd.sda}})).
-#'
-#' @details
-#'
-#'
-#' Note that for some signals different PSD slope values project to a single SDA slope. That is, SDA cannot distinguish between all variaties of power-law scaling in the frequency domain.
-#'
-#' @return An informed estimate of the Fractal Dimension, see Hasselman(2013) for details.
-#' @export
-#'
-#' @author Fred Hasselman
-#' @references Hasselman, F. (2013). When the blind curve is finite: dimension estimation and model inference based on empirical waveforms. Frontiers in Physiology, 4, 75. \url{http://doi.org/10.3389/fphys.2013.00075}
-#'
-#' @examples
-#' # Informed FD of white noise
-#' sda2fd(-0.5)
-#'
-#' # Informed FD of Brownian noise
-#' sda2fd(-1)
-#'
-#' # Informed FD of blue noise
-#' sda2fd(-0.9)
-sda2fd <- function(sap){return(1-sap)}
-
-
 
 
 #

@@ -3,10 +3,12 @@ Type: Package
 Title: nonlineaR time seRies analysis.
 Version: 0.1
 Date: 2015-12-11
-Authors@R: c(person("Fred", "Hasselman", email = "f.hasselman@pwo.ru.nl", role = c("aut", "cre")), person("Maarten", "Wijnants", email = "m.wijnants@pwo.ru.nl", role = c("aut")))
 Description: Companion to the course Dynamics of Complex Systems given at the Graduate School Behavioural Science (Research Master Behavioural Science) at the Radboud University Nijmegen.
 Depends: R (>= 3.2.2)
 LazyData: true
+License: GPL-2
 Imports: plyr, dplyr, lattice, latticeExtra, grid, gridExtra, ggplot2, pracma, signal, oce, forecast, fractal
-Suggests: tsseries, matlab, ifultools
+Suggests: tsseries, matlab, ifultools, knitr, rmarkdown, roxygen2
 RoxygenNote: 5.0.1
+Authors@R: c(person("Fred", "Hasselman", email = "f.hasselman@pwo.ru.nl", role = c("aut", "cre")), person("Maarten", "Wijnants", email = "m.wijnants@pwo.ru.nl", role = c("aut")))
+VignetteBuilder: knitr

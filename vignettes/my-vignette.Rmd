@@ -1,0 +1,118 @@
+---
+title: "Vignette Title"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+# Fractal Geometry: Estimating Self-Affinity and Dimension of Time Series
+
+It will become increasingly difficult to use software like Excel and SPSS. Perhaps now is a good time to switch to R or Matlab. We do have a spreadsheet example of Standardised Dispersion Anaysis. 
+
+### Using R: Install package `nlRtsa`
+
+First, download an install package `nlRtsa` (under construction)
+
+```{r, eval=FALSE}
+require(devtools)
+install_github("FredHasselman/nlRtsa")
+library(nlRtsa)
+```
+
+### Examples: Fast Fourier transform and Power Spectrum
+
+The `nlRtsa` package contains a nice function `in.IT()` that will load a list of packages and install them if they are not present on your system.
+```{r}
+in.IT(c("signal","pracma"))
+```
+
+Below is an example of a signal built from sine components (`y`) whose relative amplitudes are recovered in the powerspectrum.
+```{r}
+# Sawtooth
+x <- seq(-3.2,3.2, length.out = 256)
+y <- 2*sin(10*x) - 1*sin(20*x) + (2/3)*sin(30*x) - (1/2)*sin(40*x) + (2/5)*sin(50*x) - (1/4)*sin(60*x)
+
+# Plot the sawtooth wave as constructed by the Fourier series above
+plot(x,y, xlab ='Time (a.u.)', ylab = 'Variable (a.u.)', main ='Sawtooth wave', type = "l")
+
+# Perform a Fast Fourier Transform and calculate the Power and Frequency
+Y <- fft(y)
+Pyy <- Y*Conj(Y)/256
+f <- 1000/256*(0:127)
+
+# Plot the power spectrum of the sawtooth wave
+plot(f[1:50],Pyy[1:50], type="b",xlab='Frequency (a.u.)', ylab ='Power (a.u.)', pch=21, bg='grey60', main = 'Power Spectrum')
+```
+
+Now we do the same for a very noisy signal into which we insert a frequency.
+```{r}
+# A time vector
+t <- pracma::linspace(x1 = 0, x2 = 50, n = 256)
+# There are three sine components
+x <- sin(2*pi*t/.1) + sin(2*pi*t/.3) + sin(2*pi*t/.5)
+# Add random noise!
+y <- x + 1*randn(size(t))
+
+# Plote the noise.
+plot(t, y, type = "l", xlab = 'Time (a.u.)', ylab = 'Variable (a.u.)', main = 'A very noisy signal')
+
+# Get the frequency domain
+Y <- fft(y)
+Pyy <- Y*Conj(Y)/256
+f <- 1000/256*(0:127)
+
+# Plot the power spectrum of this noise
+plot(f[1:50],Pyy[1:50], type="b",xlab='Frequency (a.u.)', ylab='Power (a.u.)', pch=21, bg='grey60', main = 'Power Spectrum')
+```
+
+## Assignment: The Spectral Slope
+
+We can use the power spectrum to estimate a **self-affinity parameter**, or scaling exponent.
+
+* Download `ts1.txt`, `ts2.txt`, `ts3.txt` from blackboard. The text files contain time series.
+* Load the three time series into `R` using any of the `read` functions. **TIP** Use the function `import()` in package `rio`.
+* Plot the three time series.
+
+Now we can do some basic data preparations:
+
+* Are the lengths of the time series a power of 2? (Use `log2(length of var)` )
+* Are the data normalized? (we will not remove datapoints outside 3SD)
+    + To normalize we have to subtract the mean from each value in the time series and divide it by the standard deviation, the function `scale()` can do this for you, but you could also use `mean()` and `sd()`.
+* Plot the normalized time series.
+
+Before a spectral analysis you should remove any linear trends (it cannot deal with nonstationary signals!)
+
+* Detrend the normalized data (just the linear trend). 
+    + This can be done by the command `pracma::detrend()`. 
+    + Also try to figure out how to detrend the data using `stats::lm()` or `stats::poly()`
+* Plot the detrended data.
+
+The function `nlRtsa::fd.psd()` will perform the spectral slope fitting procedure. 
+
+* Look at the manual pages to figure out how to call it.
+    + Remember, we have already normalized and detrended the data.
+    + You can also look at the code itself by selecting the name in`R` and pressing `F2` 
+* Calculate the spectral slopes for the three normalized and detrended time series.
+    + Call with `plot = TRUE`
+    + Compare the results... What is your conclusion?
+
+## Assignment: DFA and SDA
+
+* Use the functions `fd.dfa()` and `fd.sda()` to estimate the self-affinity parameter and Dimension of the series. 
+    + Think about which data preparation steps are necessary.
+    + Compare the results between different methods.
+
+## Assignment: ACF/PACF, Relative Roughness and Sample Entropy
+
+* Also calculate the ACF, PACF, Relative Roughness (see assignment of last week) and Sample Entropy (`pracma::sample_entropy()`)
+    + Compare the results.
+
+## Assignment: Deterministic Chaos
+
+* Generate a chaotic timeseries (e.g. $r = 4$ ) of equal length as the time series used above (use the function `growth.ac( ..., type = "logistic")` in `nlRtsa`)
+* Get all the quantities for this series and compare them to the previous results.

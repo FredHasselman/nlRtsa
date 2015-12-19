@@ -7,7 +7,7 @@
 #' @param useArial    Use the Arial font (requires \code{.afm} font files in the \code{afmPath})
 #' @param afmPATH    Path to Arial \code{.afm} font files.
 #'
-#' @details Will generate a \code("clean") ggplot theme, or a theme without any axes (\code{"noax"}).
+#' @details Will generate a \code{"clean"} ggplot theme, or a theme without any axes (\code{"noax"}).
 #'
 #' Some scientific journals explicitly request the Arial font should be used in figures. This can be achieved by using \code{.afm} font format (see, e.g. http://www.pure-mac.com/font.html).
 #'
