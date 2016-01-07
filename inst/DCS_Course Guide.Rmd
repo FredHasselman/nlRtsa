@@ -1,0 +1,133 @@
+---
+title: "SOW-BS44 Dynamics of Complex Systems"
+author: "Maarten Wijnants & Fred Hasselman"
+date: "Course Guide 2015-2016"
+output:
+  html_document:
+    fig_caption: yes
+    fig_height: 8
+    fig_width: 11
+    highlight: zenburn
+    theme: spacelab
+    toc: yes
+  pdf_document:
+    fig_caption: yes
+    fig_crop: no
+    fig_height: 5
+    fig_width: 7
+    highlight: zenburn
+    keep_tex: yes
+    latex_engine: xelatex
+    toc: yes
+    toc_depth: 4
+monofont: Gill Sans Light
+mainfont: Calibri
+sansfont: Gill Sans Light
+geometry: a4paper
+---
+```{r set-options, echo=FALSE,include=FALSE}
+require(knitr)
+require(formatR)
+require(plyr)
+require(ltm)
+require(dplyr)
+require(irtoys)
+require(gplots)
+require(ggplot2)
+require(car)
+require(tiff)
+require(lattice)
+options(width=200)
+knitr::opts_chunk$set(cache=FALSE,prompt=FALSE,comment=NA,message=FALSE,echo=TRUE,warning=FALSE,tidy=TRUE,strip.white=FALSE,size="small")
+```
+
+### Contact
+
+* dr. Maarten Wijnants (m.wijnants@pwo.ru.nl)
+* dr. Fred Hasselman (f.hasselman@pwo.ru.nl)
+
+---------
+
+# Course content
+    
+This course discusses techniques that allow for the study of human behaviour from a complex systems perspective. Complexity research transcends the boundaries between the classical scientific disciplines and is a hot topic in physics, mathematics, biology, economy and psychology.    
+
+Its focus is a description and explanation of behaviour based on interaction dominant dynamics: Many processes interact on different (time)scales and behaviour emerges out of those interactions through a process of self-organization or soft-assembly. Contrary to what the term might suggest, complexity research is often about finding simple models which are able to simulate a wide range of behaviour.   
+
+This approach differs fundamentally from the more classical approaches where behaviour is caused by a system of many hidden (cognitive) components which interact in sequence as in a machine (component dominant dynamics). The most important difference is how 'change', and hence the time-evolution of a system, is studied.   
+
+The main focus of the course is hands-on data-analysis. A basic introduction to `Matlab` will be provided during the practical sessions following each lecture.  
+
+Topics include: Analysis of fractal geometry (i.e. pink noise) in time series (Standardized Dispersion Analysis, Power Spectral Density Analysis, Detrended Fluctuation Analysis); Nonlinear and chaotic time series analysis (Phase Space Reconstruction, (Cross) Recurrence Quantification Analysis, Entropy Estimation); Growth Curve models; Potential Theory; and Catastrophe Theory (Cusp model).
+
+# Learning objectives
+
+Students who followed this course will be able to critically evaluate whether their scientific inquiries can benefit from adopting theories, models, methods and analyses that were developed to study the dynamics of complex systems. The student will be able to understand in more detail the basics of formal theory evaluation, and be able to recognize, interpret and deduce theoretical accounts of human behaviour that are based on component-dominant versus interaction-dominant ontology.   
+
+Students will be able to use the basic mathematical models that allow simulation of complex interaction-dominant behaviour. Students who finish the course will be able to conduct analyses in `Excel`, `SPSS`, and `Matlab` or `R` independently, and to interpret the results from basic (non-)linear time series methods that can be used to quantify the interaction-dominant dynamics in repeated observations of human performance that can be anything from discrete behavioural categories to periodically sampled (neuro-)physiological data.  At the end of this course, students have reached a level of understanding that allows them to find relevant scientific sources about and to understand and follow new scientific developments in the complex systems approach to behavioural science.
+
+## Goals Summary
+
+* Read and understand papers that use a complex systems approach. 
+* Simulate the basic models 
+* Perform the basic analyses 
+
+# Literature
+
+The following is part of the literature for this course:
+
+* Lecture slides.
+* Articles and book chapters listed in the `Literature` folder on Blackboard for each session.
+* In addition, at the secretariat of PWO (5th floor, Spinoza building) selected chapters from the book "Dynamical Psychology" by Jay Friedenberg are available. It is not necessary to own the book to complete this course, but if you can find a copy, it may help to structure all the information provided during the course.
+
+*Note:* The literature for each session on Blackboard is provided for reference, to fascilitate looking up a topic when it is needed to complete the weekly assignments or the take-home exam. 
+
+## Preparation
+
+To prepare for each lecture students read a contemporary research paper or watch a videolecture (e.g., [TED](http://www.ted.com)) featuring complexity theory and its application on a topic in behavioural science that will be discussed in the subsequent lecture. Students are required to formulate questions about each paper, and to initiate a discussion with their fellow-students on Blackboard.
+
+Before each lecture, students should:
+
+* Read (parts of) a scientific article, or watch a videolecture featuring a complex systems perspective and/or methodology.
+* Ask (or answer) a question about what they have read / seen in the appropriate discussion forum on Blackboard.
+    + The answers students provide will be discussed during the lecture.
+
+# Teaching methods
+
+Each meeting starts with a *lecture session* addressing the mathematical background and practical application of a particular aspect of a model, or analysis technique. During the *assignment session*, students will get hands-on experience with applying the models or analysis techniques discussed during the lecture session by completing assignments provided on blackboard for each session. 
+
+## Schedule
+```{r, echo = FALSE,cache=FALSE}
+require(sjPlot)
+require(dplyr)
+tt <- read.csv(file='timetable.csv')
+tt <- tt[!is.na(tt[,1]),]
+tt <- data.frame(tt, row.names = NULL)
+tt[seq(2,nrow(tt),by=2),c(1,2)] <- ""
+tt <- sjt.df(tt, title = 'Time Table DCS 2015-2016', describe = F, no.output=T,remove.spaces = T,showCommentRow=F,showRowNames=F,hideProgressBar=T)
+```
+
+All lectures will be held on Thursday afternoons from `13.45` to `15.30`. The lectures are followed by practical sessions from `15.45` to `17.30`. The dates and locations can be found in the table below:  
+
+`r tt$knitr`
+
+# Examination
+    
+The evaluation of achievement of study goals takes two forms:
+
+* **Participation** - The ability to formulate a question about an advanced topic is a first step towards understanding, answering a question that was posted by a peer is a second step. Questions and answers will not be graded, there will be a check to see if a student participated in all sessions.
+* **Final Assignment** - This take-home assignment will be provided at the end of the course. It will consist of a series of practical assignments and at least one essay question to test theoretical knowledge. The submission deadline is two weeks after the last lecture. 
+
+## Grading
+
+The take home exam will be graded as a regular exam. A student passes the course if the exam grade is higher than 5.5 AND if the student participated in the discussion on Blackboard each session.
+
+## Submitting the assignment
+
+The take-home exam must be submitted by sending them by email to both `f.hasselman@pwo.ru.nl` AND `m.wijnants@pwo.ru.nl` no later than **February 4th**.    
+    
+-----
+
+![Fractal Zoom][1]
+
+[1]: Mandelbrot-large.gif "Mandelbrot Fractal"
