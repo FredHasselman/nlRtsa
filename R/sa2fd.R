@@ -1,5 +1,10 @@
 sa2fd <- function(sa, ...) UseMethod("sa2fd")
 
+sa2fd.default <- function(sa, ...){
+    cat("No type specified.")
+}
+
+
 #' Informed Dimension estimate from Spectral Slope (aplha)
 #'
 #' @description Conversion formula: From periodogram based self-affinity parameter estimate (\code{sa}) to an informed estimate of the (fractal) dimension (FD).

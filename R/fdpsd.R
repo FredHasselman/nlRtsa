@@ -61,7 +61,7 @@ fd.psd <- function(y, fs = NULL, normalize = TRUE, dtrend = TRUE, plot = FALSE){
     if(!is.ts(y)){
         if(is.null(fs)){fs <- 1}
         y <- ts(y, frequency = fs)
-        cat("\n\nFD.psd:\tSample rate was set to 1.\n\n")
+        cat("\n\nfd.psd:\tSample rate was set to 1.\n\n")
     }
 
     N             <- length(y)
@@ -96,8 +96,8 @@ fd.psd <- function(y, fs = NULL, normalize = TRUE, dtrend = TRUE, plot = FALSE){
     # If signal is continuous (sampled) consider Wijnants et al. (2013) log-log fitting procedure
     nr <- fractal::HDEst(NFT = length(powspec[,1]), sdf = psd)
 
-    exp1 <- hurstSpec(y, sdf.method = "direct", freq.max = 0.25, taper. = Tukey )
-    exp2 <- hurstSpec(y, sdf.method = "direct", freq.max = powspec$freq.norm[nr], taper. = Tukey)
+    exp1 <- fractal::hurstSpec(y, sdf.method = "direct", freq.max = 0.25, taper. = Tukey )
+    exp2 <- fractal::hurstSpec(y, sdf.method = "direct", freq.max = powspec$freq.norm[nr], taper. = Tukey)
 
     ifelse((glob > 0.2), {
         lmfit1 <- lm(log(rev(powspec$bulk[powspec$size<=0.25])) ~ log(rev(powspec$size[powspec$size<=0.25])))
@@ -109,7 +109,7 @@ fd.psd <- function(y, fs = NULL, normalize = TRUE, dtrend = TRUE, plot = FALSE){
 
     if(plot){
         old<- ifultools::splitplot(2,1,1)
-        plot(y,ylab = "Y", main = paste0('Lowest 25%    sap: ', round(coef(lmfit1)[2],digits=2), ' | H:', round(exp1,digits=2), ' | FD:',round(psd2fd(coef(lmfit1)[2]),digits=2),'\nHurvic-Deo    sap: ', round(coef(lmfit2)[2],digits=2), ' | H:', round(exp2,digits=2), ' | FD:',round(psd2fd(coef(lmfit2)[2]),digits=2)))
+        plot(y,ylab = "Y", main = paste0('Lowest 25%    sap: ', round(coef(lmfit1)[2],digits=2), ' | H:', round(exp1,digits=2), ' | FD:',round(sa2fd.psd(coef(lmfit1)[2]),digits=2),'\nHurvic-Deo    sap: ', round(coef(lmfit2)[2],digits=2), ' | H:', round(exp2,digits=2), ' | FD:',round(sa2fd.psd(coef(lmfit2)[2]),digits=2)))
         ifultools::splitplot(2,1,2)
         plot(log(powspec$bulk) ~ log(powspec$size), xlab="log(Frequency)", ylab = "log(Power)")
         lines(log(powspec$size[powspec$size<=0.25]), predict(lmfit1),lwd=3,col="darkred")
@@ -120,8 +120,8 @@ fd.psd <- function(y, fs = NULL, normalize = TRUE, dtrend = TRUE, plot = FALSE){
 
     return(list(
         PLAW  = powspec,
-        low25 = list(sap = coef(lmfit1)[2], H = exp1, FD = psd2fd(coef(lmfit1)[2]), fitlm1 = lmfit1),
-        HD    = list(sap = coef(lmfit2)[2], H = exp2, FD = psd2fd(coef(lmfit2)[2]), fitlm2 = lmfit2),
+        low25 = list(sap = coef(lmfit1)[2], H = exp1, FD = sa2fd.psd(coef(lmfit1)[2]), fitlm1 = lmfit1),
+        HD    = list(sap = coef(lmfit2)[2], H = exp2, FD = sa2fd.psd(coef(lmfit2)[2]), fitlm2 = lmfit2),
         info  = psd)
     )
 }
@@ -133,8 +133,9 @@ fd.psd <- function(y, fs = NULL, normalize = TRUE, dtrend = TRUE, plot = FALSE){
 #'
 #' @title Standardised Dispersion Analysis (SDA).
 #'
-#' @param y
-#' @param normalize
+#' @param y    A numeric vector or time series object.
+#' @param normalize    Normalize the series (default).
+#' @param plot    Return the log-log spectrum with linear fit (default).
 #'
 #' @author Fred Hasselman
 #' @references Hasselman, F. (2013). When the blind curve is finite: dimension estimation and model inference based on empirical waveforms. Frontiers in Physiology, 4, 75. \url{http://doi.org/10.3389/fphys.2013.00075}
@@ -174,7 +175,7 @@ fd.sda <- function(y, fs = NULL, normalize = TRUE, dtrend = FALSE, scales = disp
 
     if(plot){
         old<- ifultools::splitplot(2,1,1)
-        plot(y,ylab = "Y", main = paste0('Full    sap: ', round(coef(lmfit1)[2],digits=2), ' | H:', round(1+coef(lmfit1)[2],digits=2), ' | FD:',round(sda2fd(coef(lmfit1)[2]),digits=2),'\nRange    sap: ', round(coef(lmfit2)[2],digits=2), ' | H:', round(1+coef(lmfit1)[2],digits=2), ' | FD:',round(sda2fd(coef(lmfit2)[2]),digits=2)))
+        plot(y,ylab = "Y", main = paste0('Full    sap: ', round(coef(lmfit1)[2],digits=2), ' | H:', round(1+coef(lmfit1)[2],digits=2), ' | FD:',round(sa2fd.sda(coef(lmfit1)[2]),digits=2),'\nRange    sap: ', round(coef(lmfit2)[2],digits=2), ' | H:', round(1+coef(lmfit1)[2],digits=2), ' | FD:',round(sa2fd.sda(coef(lmfit2)[2]),digits=2)))
         ifultools::splitplot(2,1,2)
         plot(log(out$sd) ~ log(out$scale), xlab="log(Bin Size)", ylab = "log(SD)")
         lines(log(out$scale), predict(lmfit1),lwd=3,col="darkred")
@@ -185,8 +186,8 @@ fd.sda <- function(y, fs = NULL, normalize = TRUE, dtrend = FALSE, scales = disp
 
     return(list(
         PLAW  =  cbind.data.frame(freq.norm = frequency(y)/scales, size = out$scale, bulk = out$sd),
-                                  fullRange = list(sap = coef(lmfit1)[2], H = 1+coef(lmfit1)[2], FD = sda2fd(coef(lmfit1)[2]), fitlm1 = lmfit1),
-                                  fitRange  = list(sap = coef(lmfit2)[2], H = 1+coef(lmfit2)[2], FD = sda2fd(coef(lmfit2)[2]), fitlm2 = lmfit2),
+                                  fullRange = list(sap = coef(lmfit1)[2], H = 1+coef(lmfit1)[2], FD = sa2fd.sda(coef(lmfit1)[2]), fitlm1 = lmfit1),
+                                  fitRange  = list(sap = coef(lmfit2)[2], H = 1+coef(lmfit2)[2], FD = sa2fd.sda(coef(lmfit2)[2]), fitlm2 = lmfit2),
                                   info = out)
     )
 }
@@ -198,8 +199,11 @@ fd.sda <- function(y, fs = NULL, normalize = TRUE, dtrend = FALSE, scales = disp
 #'
 #' @title Detrended Fluctuation Analysis (DFA)
 #'
-#' @param y
-#' @param dmethod
+#' @param y    A numeric vector or time series object.
+#' @param normalize    Normalize the series (default).
+#' @param detrend    Subtract linear trend from the series (default).
+#' @param dmethod     Method to use for detrending, see \code{\link[fractal]{DFA}}.
+#' @param plot    Return the log-log spectrum with linear fit (default).
 #'
 #'
 #' @return Estimate of Hurst exponent (slope of \code{log(bin)} vs. \code{log(RMSE))} and an FD estimate based on Hasselman(2013)
@@ -232,8 +236,8 @@ fd.dfa <- function(y, fs = NULL, dtrend = "poly1", normalize = FALSE, sum.order 
     # Normalize using N instead of N-1.
     if(normalize) y <- (y - mean(y, na.rm = TRUE)) / (sd(y, na.rm = TRUE)*sqrt((N-1)/N))
 
-    out1 <- DFA(y, detrend=dtrend, sum.order=sum.order, scale.max=trunc(length(y)/2), scale.min=2, scale.ratio=2, overlap = 0, verbose=FALSE)
-    out2 <- DFA(y, detrend=dtrend, sum.order=sum.order, scale.max=scale.max, scale.min=scale.min, scale.ratio=scale.ratio, overlap = overlap, verbose=FALSE)
+    out1 <- fractal::DFA(y, detrend=dtrend, sum.order=sum.order, scale.max=trunc(length(y)/2), scale.min=2, scale.ratio=2, overlap = 0, verbose=FALSE)
+    out2 <- fractal::DFA(y, detrend=dtrend, sum.order=sum.order, scale.max=scale.max, scale.min=scale.min, scale.ratio=scale.ratio, overlap = overlap, verbose=FALSE)
 
     lmfit1        <- lm(log(attributes(out1)$stat) ~ log(attributes(out1)$scale))
     lmfit2        <- lm(log(attributes(out2)$stat) ~ log(attributes(out2)$scale))
@@ -243,10 +247,10 @@ fd.dfa <- function(y, fs = NULL, dtrend = "poly1", normalize = FALSE, sum.order 
         old <- ifultools::splitplot(2,1,1)
         plot(y,ylab = "Y", main = paste0('Full    sap: ', round(coef(lmfit1)[2],digits=2), ' | H:',
                                          round(attributes(out1)$logfit[]$coefficients['x'] ,digits=2), ' | FD:',
-                                         round(dfa2fd(coef(lmfit1)[2]),digits=2),'\nRange    sap: ',
+                                         round(sa2fd.dfa(coef(lmfit1)[2]),digits=2),'\nRange    sap: ',
                                          round(coef(lmfit2)[2],digits=2), ' | H:',
-                                         round( attributes(out2)$logfit[]$coefficients['x'] ,digits=2), ' | FD:',
-                                         round(dfa2fd(coef(lmfit2)[2]),digits=2)
+                                         round(attributes(out2)$logfit[]$coefficients['x'] ,digits=2), ' | FD:',
+                                         round(sa2fd.dfa(coef(lmfit2)[2]),digits=2)
                                          )
              )
         ifultools::splitplot(2,1,2)
@@ -258,59 +262,8 @@ fd.dfa <- function(y, fs = NULL, dtrend = "poly1", normalize = FALSE, sum.order 
     }
     return(list(
         PLAW  =  cbind.data.frame(freq.norm = scale.R(attributes(out1)$scale*frequency(y)), size = attributes(out1)$scale, bulk = attributes(out1)$stat),
-                                  fullRange = list(sap = coef(lmfit1)[2], H = attributes(out1)$logfit[]$coefficients['x'] , FD = dfa2fd(coef(lmfit1)[2]), fitlm1 = lmfit1),
-                                  fitRange  = list(sap = coef(lmfit2)[2], H = coef(lmfit2)[2], FD = dfa2fd(coef(lmfit2)[2]), fitlm2 = lmfit2),
+                                  fullRange = list(sap = coef(lmfit1)[2], H = attributes(out1)$logfit[]$coefficients['x'] , FD = sa2fd.dfa(coef(lmfit1)[2]), fitlm1 = lmfit1),
+                                  fitRange  = list(sap = coef(lmfit2)[2], H = coef(lmfit2)[2], FD = sa2fd.dfa(coef(lmfit2)[2]), fitlm2 = lmfit2),
                                   info = list(out1,out2))
         )
 }
-
-
-#
-#
-# require(plyr)
-# require(reshape2)
-# df.y <- ldply(seq(0.05,.95,by=.05), function(H) paste0('H.',H,'=',eval(parse(text=as.numeric(lmSimulate(lmModel("fgn", HG=H), n.sample = 1024))))))
-# df.y <- melt(df.y)
-# lmModel("dfbm", HB=H)
-#
-# require(rio)
-# ts1 <- import('ts1.txt')
-# ts2 <- import('ts2.txt')
-# ts3 <- import('ts3.txt')
-#
-#
-#
-# ys <- ts1
-#
-# fgn<-list()
-# fBm<-list()
-# Hs <- seq(0.1, .9, by=.1)
-# cnt=0
-# for(H in Hs){
-#   cnt<-cnt+1
-# fgn[[cnt]] <- ts(as.numeric(lmSimulate(lmModel("fgn", HG=H), n.sample = 1024)),start = 0, end = 1, deltat=1/1024)
-# fgn[[cnt]] <- (fgn[[cnt]]-min(fgn[[cnt]]))/max(fgn[[cnt]])
-# fBm[[cnt]] <- ts(as.numeric(lmSimulate(lmModel("dfbm", HB=H), n.sample = 1024)), start = 0, end = 1, deltat=1/1024)
-# fBm[[cnt]] <- (fBm[[cnt]]-min(fBm[[cnt]]))/max(fBm[[cnt]])
-# }
-# names(fgn) <- paste0('H = ',Hs)
-# names(fBm) <- paste0('H = ',Hs+1)
-#
-# op<-par(yaxt = 'n')
-# stackPlot(time(fBm[[1]]),c(fgn,fBm), rescale = T)
-# #stackPlot(1:1024,fBm, rescale = T)
-# par(op)
-#
-# plot(ts(as.numeric(lmSimulate(lmModel("fgn", HG=H), n.sample = 1024)), start = 0,end = 1, deltat=1/1024))
-# plot(ts(as.numeric(lmSimulate(lmModel("dfbm", HB=H), n.sample = 1024)), start = 0, end = 1, deltat=1/1024))
-#
-# models <- c("ppl","fdp","fgn")
-# lag <- 100
-# z <- lapply(models, function(x, models, lag)
-# { lmACF(lmModel(x), lag=lag)@data},
-# models=models, lag=lag)
-# names(z) <- paste(upperCase(models), "ACF")
-# stackPlot(seq(0,lag), z, xlab="lag")
-# title("Stochastic Fractal Model ACFs")
-#
-

@@ -51,8 +51,8 @@ gg.theme <- function(type=c("clean","noax"),useArial = F, afmPATH="~/Dropbox"){
 
 #' gg.plotHolder
 #'
-#' @param useArial
-#' @param afmPATH
+#' @param useArial    Use the Arial font (requires \code{.afm} font files in the \code{afmPath})
+#' @param afmPATH    Path to Arial \code{.afm} font files.
 #'
 #' @return A blank \code{ggplot2} object that can be used in concordance with \code{grid.arrange}.
 #' @export
@@ -160,11 +160,11 @@ plot.loglog <- function(fd.OUT){
 #'
 #' @description Rescale a vector to a user defined range defined by user.
 #'
-#' @param x
-#' @param mn
-#' @param mx
-#' @param lo
-#' @param hi
+#' @param x     Input vector or data frame.
+#' @param mn     Minimum value of original, defaults to \code{min(x, na.rm = TRUE)}.
+#' @param mx     Maximum value of original, defaults to \code{max(x, na.rm = TRUE)}.
+#' @param hi     Minimum value to rescale to, defaults to \code{0}.
+#' @param lo     Maximum value to rescale to, defaults to \code{1}.
 #'
 #'
 #' @details Three uses:
@@ -190,7 +190,6 @@ plot.loglog <- function(fd.OUT){
 #'
 #' scale.R(somenumbers,lo=-1,hi=1)
 #' scale.R(somenumbers,mn=-10,mx=101,lo=-1,hi=4)
-#'
 scale.R <- function(x,mn=min(x,na.rm=T),mx=max(x,na.rm=T),lo=0,hi=1){
   x <- as.data.frame(x)
   u <- x
@@ -208,18 +207,18 @@ scale.R <- function(x,mn=min(x,na.rm=T),mx=max(x,na.rm=T),lo=0,hi=1){
   return(u)
 }
 
-Rmd2htmlWP <- function(infile, outfile, sup = T) {
-  require(markdown)
-  require(knitr)
-  mdOpt <- markdownHTMLOptions(default = T)
-  mdOpt <- mdOpt[mdOpt != "mathjax"]
-  mdExt <- markdownExtensions()
-  mdExt <- mdExt[mdExt != "latex_math"]
-  if (sup == T) {
-    mdExt <- mdExt[mdExt != "superscript"]
-  }
-  knit2html(input = infile, output = outfile, options = c(mdOpt), extensions = c(mdExt))
-}
+# Rmd2htmlWP <- function(infile, outfile, sup = T) {
+#   require(markdown)
+#   require(knitr)
+#   mdOpt <- markdownHTMLOptions(default = T)
+#   mdOpt <- mdOpt[mdOpt != "mathjax"]
+#   mdExt <- markdownExtensions()
+#   mdExt <- mdExt[mdExt != "latex_math"]
+#   if (sup == T) {
+#     mdExt <- mdExt[mdExt != "superscript"]
+#   }
+#   knit2html(input = infile, output = outfile, options = c(mdOpt), extensions = c(mdExt))
+# }
 
 # MULTIPLOT FUNCTION ------------------------------------------------------------------------------------------------------------------
 #
@@ -269,27 +268,23 @@ multi.PLOT <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   }
 }
 
-# TRY … CATCH -------------------------------------------------------------------------------------------------------------------------
-
-##================================================================##
-###  In longer simulations, aka computer experiments,            ###
-###  you may want to                                             ###
-###  1) catch all errors and warnings (and continue)             ###
-###  2) store the error or warning messages                      ###
-###                                                              ###
-###  Here's a solution  (see R-help mailing list, Dec 9, 2010):  ###
-##================================================================##
-
-# Catch *and* save both errors and warnings, and in the case of
-# a warning, also keep the computed result.
-#
-# @title tryCatch both warnings (with value) and errors
-# @param expr an \R expression to evaluate
-# @return a list with 'value' and 'warning', where
-#   'value' may be an error caught.
-# @author Martin Maechler;
-# Copyright (C) 2010-2012  The R Core Team
-#
+#' TRY … CATCH
+#'
+#'  In longer simulations, aka computer experiments,
+#'  you may want to
+#'  1) catch all errors and warnings (and continue)
+#'  2) store the error or warning messages
+#'
+#'  Here's a solution  (see R-help mailing list, Dec 9, 2010):
+#'
+#' Catch *and* save both errors and warnings, and in the case of
+#' a warning, also keep the computed result.
+#'
+#' @title tryCatch both warnings (with value) and errors
+#' @param expr an \R expression to evaluate
+#' @return a list with 'value' and 'warning', where value' may be an error caught.
+#' @author Martin Maechler;
+#' Copyright (C) 2010-2012  The R Core Team
 try.CATCH <- function(expr){
   W <- NULL
   w.handler <- function(w){ # warning handler

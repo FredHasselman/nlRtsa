@@ -8,7 +8,15 @@
   lo = 0, hi = 1)
 }
 \arguments{
-\item{hi}{}
+\item{x}{Input vector or data frame.}
+
+\item{mn}{Minimum value of original, defaults to \code{min(x, na.rm = TRUE)}.}
+
+\item{mx}{Maximum value of original, defaults to \code{max(x, na.rm = TRUE)}.}
+
+\item{lo}{Maximum value to rescale to, defaults to \code{1}.}
+
+\item{hi}{Minimum value to rescale to, defaults to \code{0}.}
 }
 \description{
 Rescale a vector to a user defined range defined by user.
@@ -33,6 +41,5 @@ scale.R(somenumbers,mn=-1,mx=99)
 
 scale.R(somenumbers,lo=-1,hi=1)
 scale.R(somenumbers,mn=-10,mx=101,lo=-1,hi=4)
-
 }
 

@@ -9,7 +9,11 @@
   scales[length(scales) - 2]), plot = FALSE)
 }
 \arguments{
-\item{normalize}{}
+\item{y}{A numeric vector or time series object.}
+
+\item{normalize}{Normalize the series (default).}
+
+\item{plot}{Return the log-log spectrum with linear fit (default).}
 }
 \value{
 A list object containing:

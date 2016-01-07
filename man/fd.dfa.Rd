@@ -9,7 +9,15 @@
   scale.ratio = 2^(1/4), overlap = 0, plot = FALSE)
 }
 \arguments{
-\item{dmethod}{}
+\item{y}{A numeric vector or time series object.}
+
+\item{normalize}{Normalize the series (default).}
+
+\item{plot}{Return the log-log spectrum with linear fit (default).}
+
+\item{detrend}{Subtract linear trend from the series (default).}
+
+\item{dmethod}{Method to use for detrending, see \code{\link[fractal]{DFA}}.}
 }
 \value{
 Estimate of Hurst exponent (slope of \code{log(bin)} vs. \code{log(RMSE))} and an FD estimate based on Hasselman(2013)
